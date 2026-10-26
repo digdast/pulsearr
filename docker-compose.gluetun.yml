@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: pulsearr-vpn
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      # Expose Pulsearr UI and qBittorrent Web UI through VPN
+      - "7878:7878"
+      - "8080:8080"
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+      - WIREGUARD_ENDPOINT_IP=${WIREGUARD_ENDPOINT_IP}
+      - WIREGUARD_ENDPOINT_PORT=${WIREGUARD_ENDPOINT_PORT:-1337}
+      - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESS:-10.68.0.53/32}
+      - DOT=on
+      - BLOCK_MALICIOUS=on
+    restart: unless-stopped
+
+  pulsearr:
+    build: .
+    container_name: pulsearr
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    volumes:
+      - ./data:/app/data
+      - /mnt/storage/media:/media
+    environment:
+      - PULSEARR_PORT=7878
+    restart: unless-stopped
