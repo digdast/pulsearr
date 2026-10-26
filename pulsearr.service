@@ -1,0 +1,25 @@
+[Unit]
+Description=Pulsearr TV PVR Service
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pulsearr
+Group=pulsearr
+WorkingDirectory=/opt/pulsearr
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/pulsearr/venv/bin/python run.py
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+KillMode=mixed
+LimitNOFILE=65536
+
+# Security Hardening
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/opt/pulsearr/data
+
+[Install]
+WantedBy=multi-user.target

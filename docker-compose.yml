@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  pulsearr:
+    build: .
+    container_name: pulsearr
+    restart: unless-stopped
+    ports:
+      - "8990:8990"
+    environment:
+      - PULSEARR_PORT=8990
+      - TZ=UTC
+    volumes:
+      - ./data:/data
+      - /path/to/your/tv/shows:/data/media/tv
